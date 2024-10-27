@@ -1,0 +1,16 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Dwuczynnikowa Anova - przykład",
+    "section": "",
+    "text": "Problem do rozwiązania\nWykonano po 5 pomiarów średnic drobnego elementu produkowanego na 5 różnych maszynach przy zastosowaniu dwu różnych chłodziw A i B. Należy sprawdzić, czy rodzaj chłodziwa ma jakikolwiek wpływ na średnicę wytwarzanych elementów.\nCzynnikami wyróżniającymi są numer maszyny i rodzaj chłodziwa. Do analizy problemu wykorzystano dwuczynnikową analizę wariancji, która bada wpływ dwóch różnych jakościowych zmiennych niezależnych (jeden - maszyna, drugi - chłodziwo) na jedną ciągłą zmienną zależną (średnica elementu). Przykład i dane liczbowe zostały wzięte z poradnika: https://www.itl.nist.gov/div898/handbook/ppc/section2/ppc232.htm.\nDane liczbowe zostały przedstawione w tabeli na rysunku poniżej.\n\n\n\nPomiary średnicy \\(d\\) elementu w zależności od maszyny i chłodziwa.\n\n\nUkład zerowych hipotez, które będą testowane metodą Anova:\n\n\\(H0_1\\): Czynnik 1 nie wpływa na zmienną zależną.\n\\(𝐻0_2\\): Czynnik 2 nie wpływa na zmienną zależną.\n\\(𝐻0_{1-2}\\): Wzajemna interakcja czynników 1 i 2 nie wpływa na zmienną zależną.\n\nAnalizę Anova i czynności przygotowawcze wykonano w R (RStudio). Analizę post-hoc porównania parami - w Pythonie.\n\n\nWczytanie i analiza danych\n\ndaneA &lt;- read.table(\"ChłodziwoA.txt\", header=T)\ndaneB &lt;- read.table(\"ChłodziwoB.txt\", header=T)\n\n\n\n\n\nTabela 1: Pomiary średnicy \\(d\\) dla chłodziwa A\n\n\n\n\n\n\n\nMaszyna1\nMaszyna2\nMaszyna3\nMaszyna4\nMaszyna5\n\n\n\n\n1\n0.125\n0.118\n0.123\n0.126\n0.118\n\n\n2\n0.127\n0.122\n0.125\n0.128\n0.129\n\n\n3\n0.125\n0.120\n0.125\n0.126\n0.127\n\n\n4\n0.126\n0.124\n0.124\n0.127\n0.120\n\n\n5\n0.128\n0.119\n0.126\n0.129\n0.121\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTabela 2: Pomiary średnicy \\(d\\) dla chłodziwa B\n\n\n\n\n\n\n\nMaszyna1\nMaszyna2\nMaszyna3\nMaszyna4\nMaszyna5\n\n\n\n\n1\n0.124\n0.116\n0.122\n0.126\n0.125\n\n\n2\n0.128\n0.125\n0.121\n0.129\n0.123\n\n\n3\n0.127\n0.119\n0.124\n0.125\n0.114\n\n\n4\n0.126\n0.125\n0.126\n0.130\n0.124\n\n\n5\n0.129\n0.120\n0.125\n0.124\n0.117"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site\n\n1 + 1\n\n[1] 2"
+  }
+]
