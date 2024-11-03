@@ -1,5 +1,6 @@
 ---
-title-block-banner: true
+title-block-banner: '#54698a' 
+title-block-banner-color : '#dee1e3'
 title: "Dwuczynnikowa Anova - przykład"
 author: "Michał Kołodziejczyk"
 date: "`r Sys.Date()`"
@@ -47,6 +48,7 @@ daneB <- read.table("ChłodziwoB.txt", header=T)
 #| tbl-cap: "Pomiary średnicy $d$ dla chłodziwa A"
 #| message: false
 #| warning: false
+require(reticulate)                             # hub do Pythona
 
 if (!require(magnittr)) {install.packages('magnittr', 
                         repos="http://cran.us.r-project.org"); 
@@ -71,3 +73,212 @@ kable(daneA, row.names = TRUE) %>%
 kable(daneB, row.names = TRUE) %>%
   kable_styling(latex_options = "striped")
 ```
+
+## Przygotowanie danych do analizy wariancji
+
+Zapis danych w postaci 'data frame', której pierwszą kolumną są średnice, a wyróżnik maszyny to druga kolumna, trzecia kolumna to rodzaj chłodziwa.
+
+```{r}
+#| label: Przygotowanie_danych
+
+n <- dim(daneA)[1]       # liczba pomiarów, tzw 'powtórzeń' 
+m <- dim(daneA)[2]       # liczba maszyn (kolumn )
+k <- 2                   # liczba poziomów czynnika 1 (rodzaju chłodziwa)
+
+nag <- colnames(daneA)   # nagłówki kolumn
+srednice <- data.frame(data = NA, nrow = 2*n*m,ncol =3)  # deklaracja 
+for(j in seq(1,m,1)){
+    for (i in seq(1,n,1)){
+      srednice[i+(j-1)*n,1] <- daneA[i,j]
+      srednice[i+(j-1)*n,2] <- nag[j]
+      srednice[i+(j-1)*n,3] <- "A"
+    }
+}
+
+for(j in seq(1,m,1)){
+    for (i in seq(1,n,1)){
+      srednice[n*m+i+(j-1)*n,1] <- daneB[i,j]
+      srednice[n*m+i+(j-1)*n,2] <- nag[j]
+      srednice[n*m+i+(j-1)*n,3] <- "B"
+    }
+}
+
+# zamiana typu kolumn
+srednice[,2] <- as.factor(srednice[,2])
+srednice[,3] <- as.factor(srednice[,3])
+
+# wprowadzenie nazw kolumn
+colnames(srednice)= c("d","Maszyna", "Chłodziwo")
+head(srednice)
+```
+
+## Wykres pudełkowy
+
+```{r}
+#| label: fig-2
+#| fig-cap: "Wykres pudełkowy zależności $d$ od numeru maszyny i chłodziwa"
+#| message: false
+#| warning: false
+
+require(ggplot2)
+ggplot(srednice, aes(x = Maszyna, y = d,  fill = Chłodziwo) ) +
+geom_boxplot()
+```
+
+# Analiza Anova
+
+Analizę Anova z uwzględnieniem interakcji pomiędzy czynnikami przeprowadzono w R.
+
+```{r}
+#| label: Analiza_Anova
+ 
+anowa <- aov(formula = d ~ Maszyna*Chłodziwo, data = srednice)
+summary(anowa)
+```
+
+## Wynik analizy
+
+Anova wykazała, że czynnikiem wpływającym na wynik (średnicę $d$) w sposób istotny statystycznie jest Maszyna. Wynika to z wartości prawdopodobieństwa p \< 0.05 tylko dla czynnika Maszyna. Rodzaj chłodziwa nie ma wpływu (p \>0.05), jak również interakcje.
+
+Oznacza to, że przynajmniej jedna z maszyn produkuje elementy różniące się od innych w sposób istotny statystycznie. W celu sprawdzenia, które maszyny produkują elementy różniące się istotnie od innych, należy wykonać analizę porównania parami metodą Tukeya HSD. Analiza została przeprowadzona z wykorzystaniem Pythona.
+
+# Analiza post-hoc porównania parami
+
+Porównanie parami przeprowadzono metodą Tukeya HSD w Pythonie wykorzystując obiekt R (data frame 'srednice').
+
+```{python}
+#| label: Analiza_post-hoc
+
+import pandas as pd
+import numpy as np
+import statsmodels
+from scipy.stats import f_oneway
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
+
+# Badanie wpływu czynnika Maszyna
+# r.srednice - odwołanie z poziomu Pythona do obiektu R
+tuk1 = pairwise_tukeyhsd(endog=r.srednice['d'],
+                          groups=r.srednice['Maszyna'],
+                          alpha=0.05)
+print(tuk1)
+
+# Badanie wpływu czynnika Chłodziwo
+tuk2 = pairwise_tukeyhsd(endog=r.srednice['d'],
+                          groups=r.srednice['Chłodziwo'],
+                          alpha=0.05)
+print(tuk2)
+```
+
+# Analiza wpływu maszyny
+
+Wynik porównania dla czynnika Chłodziwo oznacza, że nie ma ono istotnego statystycznie wpływu na średnicę elemenu (p \> 0.05). Wyniki porównania parami dla czynnika Maszyna przeanalizowano w R, wykorzystując uzyskany wcześniej obiekt Pythona (pairwise_tukeyhsd).
+
+```{r}
+#| label: Analiza_wynikow
+#| message: false
+#| warning: false
+
+  kombinacja <- function(dane){      
+# definicja funkcji wykonującej kombinację poziomów faktora "dane"
+#  i zapisującej je jako jednokolumnową data frame
+  
+  elementy <- levels(dane)           # poziomy faktora "dane"
+  kombinacje <- combn(elementy,2,paste, collapse = "-", simplify = TRUE)
+  kombinacje <- as.data.frame(kombinacje)
+  return(kombinacje)
+}
+# kombinacja(srednice$Maszyna)
+```
+
+## Maszyny różniące się w sposób statystycznie istotny
+
+```{r}
+#| message: false
+#| warning: false
+
+# liczba możliwych kombinacji 2 różnych liczb spośród 5
+n <- factorial(5)/factorial(2)/factorial(3)     # factorial() - silnia
+kombi <- kombinacja(srednice$Maszyna)           # możliwe kombinacje maszyn
+
+# wyszukiwanie wyników porównania parami z prawdopodobieństwem p < 0.05
+wynik <- data.frame(NA) 
+pom <- rep(0,n)
+p <- rep(0,n)
+j <- 0
+for (i in 1:n){    
+  if ( py$tuk1$pvalues[i] < 0.05 ) {    # odwołanie z poziomu R do obiektu Pythona
+       j <- j+1
+       pom[j] <- i
+       p[j] <- py$tuk1$pvalues[i]     
+  }
+}
+
+# zapis wyników wyszukiwania
+for (i in 1:j){
+  wynik[i,1] <- kombi[pom[i],1] 
+  wynik[i,2] <- p[i] 
+  wynik[i,3] <- "istotna"
+}
+
+colnames(wynik) <- c("Porównanie parami", "p", "różnica")
+```
+
+```{r, echo = F}
+#| label: tbl-3
+#| tbl-cap: "Maszyny różniące się w sposób istotny statystycznie"
+#| tbl-pos: H
+#| message: false
+#| warning: false
+
+kable(wynik, row.names = FALSE, align = "lll") %>%
+  kable_styling(latex_options = "striped")
+```
+
+## Maszyny nie różniące się w sposób statystycznie istotny
+
+```{r}
+
+# wyszukiwanie wyników porównania parami z prawdopodobieństwem p > 0.05
+wynik <- data.frame(NA) 
+pom <- rep(0,n)
+p <- rep(0,n)
+j <- 0
+for (i in 1:n){    
+  if ( py$tuk1$pvalues[i] > 0.05 ) {    # odwołanie z poziomu R do obiektu Pythona
+       j <- j+1
+       pom[j] <- i
+       p[j] <- py$tuk1$pvalues[i]     
+  }
+}
+
+# zapis wyników wyszukiwania
+for (i in 1:j){
+  wynik[i,1] <- kombi[pom[i],1] 
+  wynik[i,2] <- p[i] 
+  wynik[i,3] <- "nieistotna"
+}
+
+colnames(wynik) <- c("Porównanie parami", "p", "różnica")
+```
+
+```{r, echo = F}
+#| label: tbl-4
+#| tbl-cap: "Maszyny nie różniące się w sposób statystycznie istotny"
+#| message: false
+#| warning: false
+
+kable(wynik, row.names = FALSE, align = "lll") %>%
+  kable_styling(latex_options = "striped")
+```
+
+# Podsumowanie
+
+Analiza ANOVA wykazała, że wpływ rodzaju chłodziwa na wynik w postaci średnicy elementu jest nieistotny statystycznie, natomiast występują różnice statystycznie istotne pomiędzy elementami wyprodukowanymi na różnych maszynach.
+
+Wyniki zaprezentowane w ostatniej tabeli wskazują, że maszyny można podzielić na dwie zazębiające się grupy:
+
+-   Maszyna1 - Maszyna 3 - Maszyna 4
+
+-   Maszyna 2 - Maszyna 3 - Maszyna 5
+
+Elementem wspólnym obu grup jest Maszyna 3. Jej produkty najmniej różnią się od pozostałych. Jednak występujące różnice pomiędzy grupami wymagają ustalenia ich przyczyny i wyeliminowania.

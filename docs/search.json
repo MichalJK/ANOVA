@@ -4,7 +4,7 @@
     "href": "index.html",
     "title": "Dwuczynnikowa Anova - przykład",
     "section": "",
-    "text": "Problem do rozwiązania\nWykonano po 5 pomiarów średnic drobnego elementu produkowanego na 5 różnych maszynach przy zastosowaniu dwu różnych chłodziw A i B. Należy sprawdzić, czy rodzaj chłodziwa ma jakikolwiek wpływ na średnicę wytwarzanych elementów.\nCzynnikami wyróżniającymi są numer maszyny i rodzaj chłodziwa. Do analizy problemu wykorzystano dwuczynnikową analizę wariancji, która bada wpływ dwóch różnych jakościowych zmiennych niezależnych (jeden - maszyna, drugi - chłodziwo) na jedną ciągłą zmienną zależną (średnica elementu). Przykład i dane liczbowe zostały wzięte z poradnika: https://www.itl.nist.gov/div898/handbook/ppc/section2/ppc232.htm.\nDane liczbowe zostały przedstawione w tabeli na rysunku poniżej.\n\n\n\nPomiary średnicy \\(d\\) elementu w zależności od maszyny i chłodziwa.\n\n\nUkład zerowych hipotez, które będą testowane metodą Anova:\n\n\\(H0_1\\): Czynnik 1 nie wpływa na zmienną zależną.\n\\(𝐻0_2\\): Czynnik 2 nie wpływa na zmienną zależną.\n\\(𝐻0_{1-2}\\): Wzajemna interakcja czynników 1 i 2 nie wpływa na zmienną zależną.\n\nAnalizę Anova i czynności przygotowawcze wykonano w R (RStudio). Analizę post-hoc porównania parami - w Pythonie.\n\n\nWczytanie i analiza danych\n\ndaneA &lt;- read.table(\"ChłodziwoA.txt\", header=T)\ndaneB &lt;- read.table(\"ChłodziwoB.txt\", header=T)\n\n\n\n\n\nTabela 1: Pomiary średnicy \\(d\\) dla chłodziwa A\n\n\n\n\n\n\n\nMaszyna1\nMaszyna2\nMaszyna3\nMaszyna4\nMaszyna5\n\n\n\n\n1\n0.125\n0.118\n0.123\n0.126\n0.118\n\n\n2\n0.127\n0.122\n0.125\n0.128\n0.129\n\n\n3\n0.125\n0.120\n0.125\n0.126\n0.127\n\n\n4\n0.126\n0.124\n0.124\n0.127\n0.120\n\n\n5\n0.128\n0.119\n0.126\n0.129\n0.121\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTabela 2: Pomiary średnicy \\(d\\) dla chłodziwa B\n\n\n\n\n\n\n\nMaszyna1\nMaszyna2\nMaszyna3\nMaszyna4\nMaszyna5\n\n\n\n\n1\n0.124\n0.116\n0.122\n0.126\n0.125\n\n\n2\n0.128\n0.125\n0.121\n0.129\n0.123\n\n\n3\n0.127\n0.119\n0.124\n0.125\n0.114\n\n\n4\n0.126\n0.125\n0.126\n0.130\n0.124\n\n\n5\n0.129\n0.120\n0.125\n0.124\n0.117"
+    "text": "Wykonano po 5 pomiarów średnic drobnego elementu produkowanego na 5 różnych maszynach przy zastosowaniu dwu różnych chłodziw A i B. Należy sprawdzić, czy rodzaj chłodziwa ma jakikolwiek wpływ na średnicę wytwarzanych elementów.\nCzynnikami wyróżniającymi są numer maszyny i rodzaj chłodziwa. Do analizy problemu wykorzystano dwuczynnikową analizę wariancji, która bada wpływ dwóch różnych jakościowych zmiennych niezależnych (jeden - maszyna, drugi - chłodziwo) na jedną ciągłą zmienną zależną (średnica elementu). Przykład i dane liczbowe zostały wzięte z poradnika: https://www.itl.nist.gov/div898/handbook/ppc/section2/ppc232.htm.\nDane liczbowe zostały przedstawione w tabeli na rysunku poniżej.\n\n\n\nPomiary średnicy \\(d\\) elementu w zależności od maszyny i chłodziwa.\n\n\nUkład zerowych hipotez, które będą testowane metodą Anova:\n\n\\(H0_1\\): Czynnik 1 nie wpływa na zmienną zależną.\n\\(𝐻0_2\\): Czynnik 2 nie wpływa na zmienną zależną.\n\\(𝐻0_{1-2}\\): Wzajemna interakcja czynników 1 i 2 nie wpływa na zmienną zależną.\n\nAnalizę Anova i czynności przygotowawcze wykonano w R (RStudio). Analizę post-hoc porównania parami - w Pythonie."
   },
   {
     "objectID": "about.html",
@@ -12,5 +12,40 @@
     "title": "About",
     "section": "",
     "text": "About this site\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "index.html#przygotowanie-danych-do-analizy-wariancji",
+    "href": "index.html#przygotowanie-danych-do-analizy-wariancji",
+    "title": "Dwuczynnikowa Anova - przykład",
+    "section": "Przygotowanie danych do analizy wariancji",
+    "text": "Przygotowanie danych do analizy wariancji\nZapis danych w postaci ‘data frame’, której pierwszą kolumną są średnice, a wyróżnik maszyny to druga kolumna, trzecia kolumna to rodzaj chłodziwa.\n\nn &lt;- dim(daneA)[1]       # liczba pomiarów, tzw 'powtórzeń' \nm &lt;- dim(daneA)[2]       # liczba maszyn (kolumn )\nk &lt;- 2                   # liczba poziomów czynnika 1 (rodzaju chłodziwa)\n\nnag &lt;- colnames(daneA)   # nagłówki kolumn\nsrednice &lt;- data.frame(data = NA, nrow = 2*n*m,ncol =3)  # deklaracja \nfor(j in seq(1,m,1)){\n    for (i in seq(1,n,1)){\n      srednice[i+(j-1)*n,1] &lt;- daneA[i,j]\n      srednice[i+(j-1)*n,2] &lt;- nag[j]\n      srednice[i+(j-1)*n,3] &lt;- \"A\"\n    }\n}\n\nfor(j in seq(1,m,1)){\n    for (i in seq(1,n,1)){\n      srednice[n*m+i+(j-1)*n,1] &lt;- daneB[i,j]\n      srednice[n*m+i+(j-1)*n,2] &lt;- nag[j]\n      srednice[n*m+i+(j-1)*n,3] &lt;- \"B\"\n    }\n}\n\n# zamiana typu kolumn\nsrednice[,2] &lt;- as.factor(srednice[,2])\nsrednice[,3] &lt;- as.factor(srednice[,3])\n\n# wprowadzenie nazw kolumn\ncolnames(srednice)= c(\"d\",\"Maszyna\", \"Chłodziwo\")\nhead(srednice)\n\n      d  Maszyna Chłodziwo\n1 0.125 Maszyna1         A\n2 0.127 Maszyna1         A\n3 0.125 Maszyna1         A\n4 0.126 Maszyna1         A\n5 0.128 Maszyna1         A\n6 0.118 Maszyna2         A"
+  },
+  {
+    "objectID": "index.html#wykres-pudełkowy",
+    "href": "index.html#wykres-pudełkowy",
+    "title": "Dwuczynnikowa Anova - przykład",
+    "section": "Wykres pudełkowy",
+    "text": "Wykres pudełkowy\n\nrequire(ggplot2)\nggplot(srednice, aes(x = Maszyna, y = d,  fill = Chłodziwo) ) +\ngeom_boxplot()\n\n\n\n\n\n\n\nRysunek 1: Wykres pudełkowy zależności \\(d\\) od numeru maszyny i chłodziwa"
+  },
+  {
+    "objectID": "index.html#wynik-analizy",
+    "href": "index.html#wynik-analizy",
+    "title": "Dwuczynnikowa Anova - przykład",
+    "section": "Wynik analizy",
+    "text": "Wynik analizy\nAnova wykazała, że czynnikiem wpływającym na wynik (średnicę \\(d\\)) w sposób istotny statystycznie jest Maszyna. Wynika to z wartości prawdopodobieństwa p &lt; 0.05 tylko dla czynnika Maszyna. Rodzaj chłodziwa nie ma wpływu (p &gt;0.05), jak również interakcje.\nOznacza to, że przynajmniej jedna z maszyn produkuje elementy różniące się od innych w sposób istotny statystycznie. W celu sprawdzenia, które maszyny produkują elementy różniące się istotnie od innych, należy wykonać analizę porównania parami metodą Tukeya HSD. Analiza została przeprowadzona z wykorzystaniem Pythona."
+  },
+  {
+    "objectID": "index.html#maszyny-różniące-się-w-sposób-statystycznie-istotny",
+    "href": "index.html#maszyny-różniące-się-w-sposób-statystycznie-istotny",
+    "title": "Dwuczynnikowa Anova - przykład",
+    "section": "Maszyny różniące się w sposób statystycznie istotny",
+    "text": "Maszyny różniące się w sposób statystycznie istotny\n\n# liczba możliwych kombinacji 2 różnych liczb spośród 5\nn &lt;- factorial(5)/factorial(2)/factorial(3)     # factorial() - silnia\nkombi &lt;- kombinacja(srednice$Maszyna)           # możliwe kombinacje maszyn\n\n# wyszukiwanie wyników porównania parami z prawdopodobieństwem p &lt; 0.05\nwynik &lt;- data.frame(NA) \npom &lt;- rep(0,n)\np &lt;- rep(0,n)\nj &lt;- 0\nfor (i in 1:n){    \n  if ( py$tuk1$pvalues[i] &lt; 0.05 ) {    # odwołanie z poziomu R do obiektu Pythona\n       j &lt;- j+1\n       pom[j] &lt;- i\n       p[j] &lt;- py$tuk1$pvalues[i]     \n  }\n}\n\n# zapis wyników wyszukiwania\nfor (i in 1:j){\n  wynik[i,1] &lt;- kombi[pom[i],1] \n  wynik[i,2] &lt;- p[i] \n  wynik[i,3] &lt;- \"istotna\"\n}\n\ncolnames(wynik) &lt;- c(\"Porównanie parami\", \"p\", \"różnica\")\n\n\n\n\n\nTabela 3: Maszyny różniące się w sposób istotny statystycznie\n\n\n\n\n\n\nPorównanie parami\np\nróżnica\n\n\n\n\nMaszyna1-Maszyna2\n0.0004717\nistotna\n\n\nMaszyna1-Maszyna5\n0.0051667\nistotna\n\n\nMaszyna2-Maszyna4\n0.0001330\nistotna\n\n\nMaszyna4-Maszyna5\n0.0016046\nistotna"
+  },
+  {
+    "objectID": "index.html#maszyny-nie-różniące-się-w-sposób-statystycznie-istotny",
+    "href": "index.html#maszyny-nie-różniące-się-w-sposób-statystycznie-istotny",
+    "title": "Dwuczynnikowa Anova - przykład",
+    "section": "Maszyny nie różniące się w sposób statystycznie istotny",
+    "text": "Maszyny nie różniące się w sposób statystycznie istotny\n\n# wyszukiwanie wyników porównania parami z prawdopodobieństwem p &gt; 0.05\nwynik &lt;- data.frame(NA) \npom &lt;- rep(0,n)\np &lt;- rep(0,n)\nj &lt;- 0\nfor (i in 1:n){    \n  if ( py$tuk1$pvalues[i] &gt; 0.05 ) {    # odwołanie z poziomu R do obiektu Pythona\n       j &lt;- j+1\n       pom[j] &lt;- i\n       p[j] &lt;- py$tuk1$pvalues[i]     \n  }\n}\n\n# zapis wyników wyszukiwania\nfor (i in 1:j){\n  wynik[i,1] &lt;- kombi[pom[i],1] \n  wynik[i,2] &lt;- p[i] \n  wynik[i,3] &lt;- \"nieistotna\"\n}\n\ncolnames(wynik) &lt;- c(\"Porównanie parami\", \"p\", \"różnica\")\n\n\n\n\n\nTabela 4: Maszyny nie różniące się w sposób statystycznie istotny\n\n\n\n\n\n\nPorównanie parami\np\nróżnica\n\n\n\n\nMaszyna1-Maszyna3\n0.3398099\nnieistotna\n\n\nMaszyna1-Maszyna4\n0.9947892\nnieistotna\n\n\nMaszyna2-Maszyna3\n0.0889036\nnieistotna\n\n\nMaszyna2-Maszyna5\n0.9334903\nnieistotna\n\n\nMaszyna3-Maszyna4\n0.1709501\nnieistotna\n\n\nMaszyna3-Maszyna5\n0.3824476\nnieistotna"
   }
 ]

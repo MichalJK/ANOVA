@@ -101,6 +101,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Szukaj"
   }
 }</script>
+<style>
+
+      .quarto-title-block .quarto-title-banner h1,
+      .quarto-title-block .quarto-title-banner h2,
+      .quarto-title-block .quarto-title-banner h3,
+      .quarto-title-block .quarto-title-banner h4,
+      .quarto-title-block .quarto-title-banner h5,
+      .quarto-title-block .quarto-title-banner h6
+      {
+        color: #dee1e3;
+      }
+
+      .quarto-title-block .quarto-title-banner {
+        color: #dee1e3;
+background: #54698a;
+      }
+</style>
 <script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
 
 <link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
@@ -192,7 +209,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">Opublikowano</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">27 października 2024</p>
+        <p class="date">29 października 2024</p>
       </div>
     </div>
     
@@ -209,7 +226,22 @@ window.Quarto = {
    
   <ul>
   <li><a href="#problem-do-rozwiązania" id="toc-problem-do-rozwiązania" class="nav-link active" data-scroll-target="#problem-do-rozwiązania">Problem do rozwiązania</a></li>
-  <li><a href="#wczytanie-i-analiza-danych" id="toc-wczytanie-i-analiza-danych" class="nav-link" data-scroll-target="#wczytanie-i-analiza-danych">Wczytanie i analiza danych</a></li>
+  <li><a href="#wczytanie-i-analiza-danych" id="toc-wczytanie-i-analiza-danych" class="nav-link" data-scroll-target="#wczytanie-i-analiza-danych">Wczytanie i analiza danych</a>
+  <ul class="collapse">
+  <li><a href="#przygotowanie-danych-do-analizy-wariancji" id="toc-przygotowanie-danych-do-analizy-wariancji" class="nav-link" data-scroll-target="#przygotowanie-danych-do-analizy-wariancji">Przygotowanie danych do analizy wariancji</a></li>
+  <li><a href="#wykres-pudełkowy" id="toc-wykres-pudełkowy" class="nav-link" data-scroll-target="#wykres-pudełkowy">Wykres pudełkowy</a></li>
+  </ul></li>
+  <li><a href="#analiza-anova" id="toc-analiza-anova" class="nav-link" data-scroll-target="#analiza-anova">Analiza Anova</a>
+  <ul class="collapse">
+  <li><a href="#wynik-analizy" id="toc-wynik-analizy" class="nav-link" data-scroll-target="#wynik-analizy">Wynik analizy</a></li>
+  </ul></li>
+  <li><a href="#analiza-post-hoc-porównania-parami" id="toc-analiza-post-hoc-porównania-parami" class="nav-link" data-scroll-target="#analiza-post-hoc-porównania-parami">Analiza post-hoc porównania parami</a></li>
+  <li><a href="#analiza-wpływu-maszyny" id="toc-analiza-wpływu-maszyny" class="nav-link" data-scroll-target="#analiza-wpływu-maszyny">Analiza wpływu maszyny</a>
+  <ul class="collapse">
+  <li><a href="#maszyny-różniące-się-w-sposób-statystycznie-istotny" id="toc-maszyny-różniące-się-w-sposób-statystycznie-istotny" class="nav-link" data-scroll-target="#maszyny-różniące-się-w-sposób-statystycznie-istotny">Maszyny różniące się w sposób statystycznie istotny</a></li>
+  <li><a href="#maszyny-nie-różniące-się-w-sposób-statystycznie-istotny" id="toc-maszyny-nie-różniące-się-w-sposób-statystycznie-istotny" class="nav-link" data-scroll-target="#maszyny-nie-różniące-się-w-sposób-statystycznie-istotny">Maszyny nie różniące się w sposób statystycznie istotny</a></li>
+  </ul></li>
+  <li><a href="#podsumowanie" id="toc-podsumowanie" class="nav-link" data-scroll-target="#podsumowanie">Podsumowanie</a></li>
   </ul>
 </nav>
     </div>
@@ -383,6 +415,324 @@ Tabela&nbsp;2: Pomiary średnicy <span class="math inline">\(d\)</span> dla chł
 </figure>
 </div>
 </div>
+<section id="przygotowanie-danych-do-analizy-wariancji" class="level2">
+<h2 class="anchored" data-anchor-id="przygotowanie-danych-do-analizy-wariancji">Przygotowanie danych do analizy wariancji</h2>
+<p>Zapis danych w postaci ‘data frame’, której pierwszą kolumną są średnice, a wyróżnik maszyny to druga kolumna, trzecia kolumna to rodzaj chłodziwa.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">dim</span>(daneA)[<span class="dv">1</span>]       <span class="co"># liczba pomiarów, tzw 'powtórzeń' </span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">dim</span>(daneA)[<span class="dv">2</span>]       <span class="co"># liczba maszyn (kolumn )</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>k <span class="ot">&lt;-</span> <span class="dv">2</span>                   <span class="co"># liczba poziomów czynnika 1 (rodzaju chłodziwa)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>nag <span class="ot">&lt;-</span> <span class="fu">colnames</span>(daneA)   <span class="co"># nagłówki kolumn</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>srednice <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">data =</span> <span class="cn">NA</span>, <span class="at">nrow =</span> <span class="dv">2</span><span class="sc">*</span>n<span class="sc">*</span>m,<span class="at">ncol =</span><span class="dv">3</span>)  <span class="co"># deklaracja </span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(j <span class="cf">in</span> <span class="fu">seq</span>(<span class="dv">1</span>,m,<span class="dv">1</span>)){</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq</span>(<span class="dv">1</span>,n,<span class="dv">1</span>)){</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>      srednice[i<span class="sc">+</span>(j<span class="dv">-1</span>)<span class="sc">*</span>n,<span class="dv">1</span>] <span class="ot">&lt;-</span> daneA[i,j]</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>      srednice[i<span class="sc">+</span>(j<span class="dv">-1</span>)<span class="sc">*</span>n,<span class="dv">2</span>] <span class="ot">&lt;-</span> nag[j]</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>      srednice[i<span class="sc">+</span>(j<span class="dv">-1</span>)<span class="sc">*</span>n,<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="st">"A"</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(j <span class="cf">in</span> <span class="fu">seq</span>(<span class="dv">1</span>,m,<span class="dv">1</span>)){</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq</span>(<span class="dv">1</span>,n,<span class="dv">1</span>)){</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>      srednice[n<span class="sc">*</span>m<span class="sc">+</span>i<span class="sc">+</span>(j<span class="dv">-1</span>)<span class="sc">*</span>n,<span class="dv">1</span>] <span class="ot">&lt;-</span> daneB[i,j]</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>      srednice[n<span class="sc">*</span>m<span class="sc">+</span>i<span class="sc">+</span>(j<span class="dv">-1</span>)<span class="sc">*</span>n,<span class="dv">2</span>] <span class="ot">&lt;-</span> nag[j]</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>      srednice[n<span class="sc">*</span>m<span class="sc">+</span>i<span class="sc">+</span>(j<span class="dv">-1</span>)<span class="sc">*</span>n,<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="st">"B"</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co"># zamiana typu kolumn</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>srednice[,<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(srednice[,<span class="dv">2</span>])</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>srednice[,<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(srednice[,<span class="dv">3</span>])</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co"># wprowadzenie nazw kolumn</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(srednice)<span class="ot">=</span> <span class="fu">c</span>(<span class="st">"d"</span>,<span class="st">"Maszyna"</span>, <span class="st">"Chłodziwo"</span>)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(srednice)</span></code><button title="Kopiuj do schowka" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      d  Maszyna Chłodziwo
+1 0.125 Maszyna1         A
+2 0.127 Maszyna1         A
+3 0.125 Maszyna1         A
+4 0.126 Maszyna1         A
+5 0.128 Maszyna1         A
+6 0.118 Maszyna2         A</code></pre>
+</div>
+</div>
+</section>
+<section id="wykres-pudełkowy" class="level2">
+<h2 class="anchored" data-anchor-id="wykres-pudełkowy">Wykres pudełkowy</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(ggplot2)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(srednice, <span class="fu">aes</span>(<span class="at">x =</span> Maszyna, <span class="at">y =</span> d,  <span class="at">fill =</span> Chłodziwo) ) <span class="sc">+</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_boxplot</span>()</span></code><button title="Kopiuj do schowka" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="fig-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-2-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Rysunek&nbsp;1: Wykres pudełkowy zależności <span class="math inline">\(d\)</span> od numeru maszyny i chłodziwa
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="analiza-anova" class="level1">
+<h1>Analiza Anova</h1>
+<p>Analizę Anova z uwzględnieniem interakcji pomiędzy czynnikami przeprowadzono w R.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>anowa <span class="ot">&lt;-</span> <span class="fu">aov</span>(<span class="at">formula =</span> d <span class="sc">~</span> Maszyna<span class="sc">*</span>Chłodziwo, <span class="at">data =</span> srednice)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(anowa)</span></code><button title="Kopiuj do schowka" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                  Df    Sum Sq   Mean Sq F value   Pr(&gt;F)    
+Maszyna            4 0.0003033 7.583e-05   8.766 3.52e-05 ***
+Chłodziwo          1 0.0000039 3.920e-06   0.453    0.505    
+Maszyna:Chłodziwo  4 0.0000147 3.670e-06   0.424    0.790    
+Residuals         40 0.0003460 8.650e-06                     
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<section id="wynik-analizy" class="level2">
+<h2 class="anchored" data-anchor-id="wynik-analizy">Wynik analizy</h2>
+<p>Anova wykazała, że czynnikiem wpływającym na wynik (średnicę <span class="math inline">\(d\)</span>) w sposób istotny statystycznie jest Maszyna. Wynika to z wartości prawdopodobieństwa p &lt; 0.05 tylko dla czynnika Maszyna. Rodzaj chłodziwa nie ma wpływu (p &gt;0.05), jak również interakcje.</p>
+<p>Oznacza to, że przynajmniej jedna z maszyn produkuje elementy różniące się od innych w sposób istotny statystycznie. W celu sprawdzenia, które maszyny produkują elementy różniące się istotnie od innych, należy wykonać analizę porównania parami metodą Tukeya HSD. Analiza została przeprowadzona z wykorzystaniem Pythona.</p>
+</section>
+</section>
+<section id="analiza-post-hoc-porównania-parami" class="level1">
+<h1>Analiza post-hoc porównania parami</h1>
+<p>Porównanie parami przeprowadzono metodą Tukeya HSD w Pythonie wykorzystując obiekt R (data frame ‘srednice’).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> f_oneway</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.stats.multicomp <span class="im">import</span> pairwise_tukeyhsd</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Badanie wpływu czynnika Maszyna</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># r.srednice - odwołanie z poziomu Pythona do obiektu R</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>tuk1 <span class="op">=</span> pairwise_tukeyhsd(endog<span class="op">=</span>r.srednice[<span class="st">'d'</span>],</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>                          groups<span class="op">=</span>r.srednice[<span class="st">'Maszyna'</span>],</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>                          alpha<span class="op">=</span><span class="fl">0.05</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tuk1)</span></code><button title="Kopiuj do schowka" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Multiple Comparison of Means - Tukey HSD, FWER=0.05   
+========================================================
+ group1   group2  meandiff p-adj   lower   upper  reject
+--------------------------------------------------------
+Maszyna1 Maszyna2  -0.0057 0.0005 -0.0093 -0.0021   True
+Maszyna1 Maszyna3  -0.0024 0.3398  -0.006  0.0012  False
+Maszyna1 Maszyna4   0.0005 0.9948 -0.0031  0.0041  False
+Maszyna1 Maszyna5  -0.0047 0.0052 -0.0083 -0.0011   True
+Maszyna2 Maszyna3   0.0033 0.0889 -0.0003  0.0069  False
+Maszyna2 Maszyna4   0.0062 0.0001  0.0026  0.0098   True
+Maszyna2 Maszyna5    0.001 0.9335 -0.0026  0.0046  False
+Maszyna3 Maszyna4   0.0029  0.171 -0.0007  0.0065  False
+Maszyna3 Maszyna5  -0.0023 0.3824 -0.0059  0.0013  False
+Maszyna4 Maszyna5  -0.0052 0.0016 -0.0088 -0.0016   True
+--------------------------------------------------------</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Badanie wpływu czynnika Chłodziwo</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>tuk2 <span class="op">=</span> pairwise_tukeyhsd(endog<span class="op">=</span>r.srednice[<span class="st">'d'</span>],</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                          groups<span class="op">=</span>r.srednice[<span class="st">'Chłodziwo'</span>],</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                          alpha<span class="op">=</span><span class="fl">0.05</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tuk2)</span></code><button title="Kopiuj do schowka" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Multiple Comparison of Means - Tukey HSD, FWER=0.05
+==================================================
+group1 group2 meandiff p-adj  lower  upper  reject
+--------------------------------------------------
+     A      B  -0.0006 0.597 -0.0027 0.0016  False
+--------------------------------------------------</code></pre>
+</div>
+</div>
+</section>
+<section id="analiza-wpływu-maszyny" class="level1">
+<h1>Analiza wpływu maszyny</h1>
+<p>Wynik porównania dla czynnika Chłodziwo oznacza, że nie ma ono istotnego statystycznie wpływu na średnicę elemenu (p &gt; 0.05). Wyniki porównania parami dla czynnika Maszyna przeanalizowano w R, wykorzystując uzyskany wcześniej obiekt Pythona (pairwise_tukeyhsd).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>  kombinacja <span class="ot">&lt;-</span> <span class="cf">function</span>(dane){      </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co"># definicja funkcji wykonującej kombinację poziomów faktora "dane"</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co">#  i zapisującej je jako jednokolumnową data frame</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  elementy <span class="ot">&lt;-</span> <span class="fu">levels</span>(dane)           <span class="co"># poziomy faktora "dane"</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  kombinacje <span class="ot">&lt;-</span> <span class="fu">combn</span>(elementy,<span class="dv">2</span>,paste, <span class="at">collapse =</span> <span class="st">"-"</span>, <span class="at">simplify =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  kombinacje <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(kombinacje)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(kombinacje)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co"># kombinacja(srednice$Maszyna)</span></span></code><button title="Kopiuj do schowka" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="maszyny-różniące-się-w-sposób-statystycznie-istotny" class="level2">
+<h2 class="anchored" data-anchor-id="maszyny-różniące-się-w-sposób-statystycznie-istotny">Maszyny różniące się w sposób statystycznie istotny</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># liczba możliwych kombinacji 2 różnych liczb spośród 5</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">factorial</span>(<span class="dv">5</span>)<span class="sc">/</span><span class="fu">factorial</span>(<span class="dv">2</span>)<span class="sc">/</span><span class="fu">factorial</span>(<span class="dv">3</span>)     <span class="co"># factorial() - silnia</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>kombi <span class="ot">&lt;-</span> <span class="fu">kombinacja</span>(srednice<span class="sc">$</span>Maszyna)           <span class="co"># możliwe kombinacje maszyn</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># wyszukiwanie wyników porównania parami z prawdopodobieństwem p &lt; 0.05</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>wynik <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="cn">NA</span>) </span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>pom <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>,n)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>,n)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>j <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n){    </span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> ( py<span class="sc">$</span>tuk1<span class="sc">$</span>pvalues[i] <span class="sc">&lt;</span> <span class="fl">0.05</span> ) {    <span class="co"># odwołanie z poziomu R do obiektu Pythona</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>       j <span class="ot">&lt;-</span> j<span class="sc">+</span><span class="dv">1</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>       pom[j] <span class="ot">&lt;-</span> i</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>       p[j] <span class="ot">&lt;-</span> py<span class="sc">$</span>tuk1<span class="sc">$</span>pvalues[i]     </span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co"># zapis wyników wyszukiwania</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>j){</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  wynik[i,<span class="dv">1</span>] <span class="ot">&lt;-</span> kombi[pom[i],<span class="dv">1</span>] </span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  wynik[i,<span class="dv">2</span>] <span class="ot">&lt;-</span> p[i] </span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  wynik[i,<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="st">"istotna"</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(wynik) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Porównanie parami"</span>, <span class="st">"p"</span>, <span class="st">"różnica"</span>)</span></code><button title="Kopiuj do schowka" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-tbl-pos="H">
+<div id="tbl-3" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-tbl-pos="H">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tabela&nbsp;3: Maszyny różniące się w sposób istotny statystycznie
+</figcaption>
+<div aria-describedby="tbl-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="table do-not-create-environment cell caption-top table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Porównanie parami</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">p</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">różnica</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Maszyna1-Maszyna2</td>
+<td style="text-align: left;">0.0004717</td>
+<td style="text-align: left;">istotna</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Maszyna1-Maszyna5</td>
+<td style="text-align: left;">0.0051667</td>
+<td style="text-align: left;">istotna</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Maszyna2-Maszyna4</td>
+<td style="text-align: left;">0.0001330</td>
+<td style="text-align: left;">istotna</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Maszyna4-Maszyna5</td>
+<td style="text-align: left;">0.0016046</td>
+<td style="text-align: left;">istotna</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+<section id="maszyny-nie-różniące-się-w-sposób-statystycznie-istotny" class="level2">
+<h2 class="anchored" data-anchor-id="maszyny-nie-różniące-się-w-sposób-statystycznie-istotny">Maszyny nie różniące się w sposób statystycznie istotny</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># wyszukiwanie wyników porównania parami z prawdopodobieństwem p &gt; 0.05</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>wynik <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="cn">NA</span>) </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>pom <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>,n)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>,n)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>j <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n){    </span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> ( py<span class="sc">$</span>tuk1<span class="sc">$</span>pvalues[i] <span class="sc">&gt;</span> <span class="fl">0.05</span> ) {    <span class="co"># odwołanie z poziomu R do obiektu Pythona</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>       j <span class="ot">&lt;-</span> j<span class="sc">+</span><span class="dv">1</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>       pom[j] <span class="ot">&lt;-</span> i</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>       p[j] <span class="ot">&lt;-</span> py<span class="sc">$</span>tuk1<span class="sc">$</span>pvalues[i]     </span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co"># zapis wyników wyszukiwania</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>j){</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  wynik[i,<span class="dv">1</span>] <span class="ot">&lt;-</span> kombi[pom[i],<span class="dv">1</span>] </span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  wynik[i,<span class="dv">2</span>] <span class="ot">&lt;-</span> p[i] </span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  wynik[i,<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="st">"nieistotna"</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(wynik) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Porównanie parami"</span>, <span class="st">"p"</span>, <span class="st">"różnica"</span>)</span></code><button title="Kopiuj do schowka" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div id="tbl-4" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Tabela&nbsp;4: Maszyny nie różniące się w sposób statystycznie istotny
+</figcaption>
+<div aria-describedby="tbl-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="table do-not-create-environment cell caption-top table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Porównanie parami</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">p</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">różnica</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Maszyna1-Maszyna3</td>
+<td style="text-align: left;">0.3398099</td>
+<td style="text-align: left;">nieistotna</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Maszyna1-Maszyna4</td>
+<td style="text-align: left;">0.9947892</td>
+<td style="text-align: left;">nieistotna</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Maszyna2-Maszyna3</td>
+<td style="text-align: left;">0.0889036</td>
+<td style="text-align: left;">nieistotna</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Maszyna2-Maszyna5</td>
+<td style="text-align: left;">0.9334903</td>
+<td style="text-align: left;">nieistotna</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Maszyna3-Maszyna4</td>
+<td style="text-align: left;">0.1709501</td>
+<td style="text-align: left;">nieistotna</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Maszyna3-Maszyna5</td>
+<td style="text-align: left;">0.3824476</td>
+<td style="text-align: left;">nieistotna</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+</section>
+<section id="podsumowanie" class="level1">
+<h1>Podsumowanie</h1>
+<p>Analiza ANOVA wykazała, że wpływ rodzaju chłodziwa na wynik w postaci średnicy elementu jest nieistotny statystycznie, natomiast występują różnice statystycznie istotne pomiędzy elementami wyprodukowanymi na różnych maszynach.</p>
+<p>Wyniki zaprezentowane w ostatniej tabeli wskazują, że maszyny można podzielić na dwie zazębiające się grupy:</p>
+<ul>
+<li><p>Maszyna1 - Maszyna 3 - Maszyna 4</p></li>
+<li><p>Maszyna 2 - Maszyna 3 - Maszyna 5</p></li>
+</ul>
+<p>Elementem wspólnym obu grup jest Maszyna 3. Jej produkty najmniej różnią się od pozostałych. Jednak występujące różnice pomiędzy grupami wymagają ustalenia ich przyczyny i wyeliminowania.</p>
 
 
 </section>
