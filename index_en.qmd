@@ -1,0 +1,282 @@
+---
+title-block-banner: '#54698a' 
+title-block-banner-color : '#dee1e3'
+title: "Two-way Anova - an example"
+author: "Michał Kołodziejczyk"
+date: "`r Sys.Date()`"
+format: 
+  html:
+    toc: true
+ #   number-sections: true
+    tbl-pos: 'H'
+css: styles.css
+editor: visual
+---
+
+# Problem to be solved
+
+5 measurements have been made of the diameter of a small element produced on 5 different machines using two different coolants A and B were made. It should be checked whether the type of coolant has any effect on the diameter of the elements produced.
+
+The distinguishing factors are the machine number and the type of coolant. The problem was analyzed using a two-way analysis of variance, which examines the effect of two different qualitative independent variables (one - machine, the other - coolant) on a continuous dependent variable (the diameter of the element). The example and the numerical data have been taken from the guide: <https://www.itl.nist.gov/div898/handbook/ppc/section2/ppc232.htm.>
+
+The numerical data are presented in the table in the figure below.
+
+![Measurements of the diameter $d$ of the part as a function of the machine and the coolant.](2factors.png){fig-align="center" width="486"}
+
+The null hypotheses to be tested using the Anova method:
+
+-   \$H0_1\$: Factor 1 (coolant) has no effect on the dependent variable.
+
+-   \$𝐻0_2\$: Factor 2 (Machine) has no effect on the dependent variable.
+
+-   \$𝐻0\_{1-2}\$: The interaction of factors 1 and 2 has no effect on the dependent variable.
+
+Anova analysis and preparatory steps were performed in R (RStudio). Post-hoc analysis of pairwise comparisons was performed in Python.
+
+# Data Loading and Analysis
+
+```{r}
+#| label: Data loading
+
+daneA <- read.table("CoolantA.txt", header=T)
+daneB <- read.table("CoolantB.txt", header=T)
+```
+
+```{r, echo = F}
+#| label: tbl-1
+#| tbl-cap: "Diameter measurements $d$ for coolant A"
+#| message: false
+#| warning: false
+
+if (!require(reticulate)) {install.packages('reticulate', 
+                        repos="http://cran.us.r-project.org"); 
+                        require(reticulate)}
+if (!require(magnittr)) {install.packages('magnittr', 
+                        repos="http://cran.us.r-project.org"); 
+                        require(magnittr)}
+if (!require(knitr)) {install.packages('knitr',
+                        repos="http://cran.us.r-project.org");
+                        require(knitr)}
+if (!require(kableExtra)) {install.packages('kableExtra', 
+                        repos="http://cran.us.r-project.org"); 
+                        require(kableExtra)}
+
+kable(daneA, row.names = TRUE) %>%
+  kable_styling(latex_options = "striped")
+```
+
+```{r, echo = F}
+#| label: tbl-2
+#| tbl-cap: "Diameter measurements $d$ for coolant B"
+#| message: false
+#| warning: false
+
+kable(daneB, row.names = TRUE) %>%
+  kable_styling(latex_options = "striped")
+```
+
+## Data preparation for variance analysis
+
+The data is recorded in the form of a 'data frame' where the first column is the diameter, the second column is the machine factor and the third column is the coolant type.
+
+```{r}
+#| label: Data preparation
+
+n <- dim(daneA)[1]       # number of measurements
+m <- dim(daneA)[2]       # number of machines
+k <- 2                   # number of levels of factor 1 (coolant)
+
+nag <- colnames(daneA)   
+srednice <- data.frame(data = NA, nrow = 2*n*m,ncol =3)   
+for(j in seq(1,m,1)){
+    for (i in seq(1,n,1)){
+      srednice[i+(j-1)*n,1] <- daneA[i,j]
+      srednice[i+(j-1)*n,2] <- nag[j]
+      srednice[i+(j-1)*n,3] <- "A"
+    }
+}
+
+for(j in seq(1,m,1)){
+    for (i in seq(1,n,1)){
+      srednice[n*m+i+(j-1)*n,1] <- daneB[i,j]
+      srednice[n*m+i+(j-1)*n,2] <- nag[j]
+      srednice[n*m+i+(j-1)*n,3] <- "B"
+    }
+}
+
+# columns as factors
+srednice[,2] <- as.factor(srednice[,2])
+srednice[,3] <- as.factor(srednice[,3])
+
+# names of the columns
+colnames(srednice)= c("d","Machine", "Coolant")
+head(srednice)
+```
+
+## Wykres pudełkowy
+
+```{r}
+#| label: fig-2
+#| fig-cap: "Box plot of $d$ dependence on machine number and coolant"
+#| message: false
+#| warning: false
+
+require(ggplot2)
+ggplot(srednice, aes(x = Machine, y = d,  fill = Coolant) ) +
+geom_boxplot()
+```
+
+# Anova Analysis
+
+Anova analysis with interactions between factors was performed in R.
+
+```{r}
+#| label: Anova Analysis
+ 
+anowa <- aov(formula = d ~ Machine*Coolant, data = srednice)
+summary(anowa)
+```
+
+## Results
+
+Anova showed that the factor that influenced the result (diameter \$d\$) in a statistically significant way was the Machine. This is shown by the probability value of p \< 0.05 for the Machine factor only. The type of coolant has no influence (p \>0.05), as do the interactions.This means that at least one of the machines produces parts that differ from the others in a statistically significant way.
+
+To see which machines produce parts that are significantly different from the others, a pairwise comparison analysis should be performed using the Tukey HSD method. The analysis was performed using Python.
+
+```{python}
+#| label: Post-hoc analysis
+ 
+import pandas as pd
+import numpy as np
+import statsmodels
+from scipy.stats import f_oneway
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
+
+# Investigating the impact of the Machine factor
+# r.srednice - a Python-level reference to an R object
+tuk1 = pairwise_tukeyhsd(endog=r.srednice['d'],
+                          groups=r.srednice['Machine'],
+                          alpha=0.05)
+print(tuk1)
+
+# Investigating the impact of the Coolant factor
+tuk2 = pairwise_tukeyhsd(endog=r.srednice['d'],
+                          groups=r.srednice['Coolant'],
+                          alpha=0.05)
+print(tuk2)
+```
+
+# Investigating the impact of the Machine factor
+
+The pairwise comparison result for the Coolant factor means that it has no statistically significant effect on element diameter (p \> 0.05). The pairwise comparison results for the Machine factor were analysed in R, using the Python object obtained earlier (pairwise_tukeyhsd).
+
+```{r}
+#| label: Analysis of the results
+#| message: false
+#| warning: false
+
+  kombinacja <- function(dane){      
+# definition of a function which performs a combination of the levels of the ‘dane’ factor and saving it as a single-column data frame
+  
+  elementy <- levels(dane)           # levels of the factor "dane"
+  kombinacje <- combn(elementy,2,paste, collapse = "-", simplify = TRUE)
+  kombinacje <- as.data.frame(kombinacje)
+  return(kombinacje)
+}
+# kombinacja(srednice$Maszyna)
+```
+
+## Machines that differ in a statistically significant way
+
+```{r}
+#| message: false
+#| warning: false
+
+require(reticulate)                             # hub to Python
+
+# number of possible combinations of 2 different numbers out of 5
+n <- factorial(5)/factorial(2)/factorial(3)     
+kombi <- kombinacja(srednice$Machine)           # possible combinations of Machines
+
+# Search for results of pairwise comparisons with a probability of p < 0.05
+wynik <- data.frame(NA) 
+pom <- rep(0,n)
+p <- rep(0,n)
+j <- 0
+for (i in 1:n){    
+  if ( py$tuk1$pvalues[i] < 0.05 ) {    # R-level reference to a Python object
+       j <- j+1
+       pom[j] <- i
+       p[j] <- py$tuk1$pvalues[i]     
+  }
+}
+
+# search results
+for (i in 1:j){
+  wynik[i,1] <- kombi[pom[i],1] 
+  wynik[i,2] <- p[i] 
+  wynik[i,3] <- "significant"  
+}
+
+colnames(wynik) <- c("pairwise comparisons", "p", "difference")
+```
+
+```{r, echo = F}
+#| label: tbl-3
+#| tbl-cap: "Machines that differ in a statistically significant way"
+#| tbl-pos: H
+#| message: false
+#| warning: false
+
+kable(wynik, row.names = FALSE, align = "lll") %>%
+  kable_styling(latex_options = "striped")
+```
+
+## Machines not statistically significantly different
+
+```{r}
+
+# Search for results of pairwise comparisons with a probability of p > 0.05
+wynik <- data.frame(NA) 
+pom <- rep(0,n)
+p <- rep(0,n)
+j <- 0
+for (i in 1:n){    
+  if ( py$tuk1$pvalues[i] > 0.05 ) {    # R-level reference to a Python object
+       j <- j+1
+       pom[j] <- i
+       p[j] <- py$tuk1$pvalues[i]     
+  }
+}
+
+# search results
+for (i in 1:j){
+  wynik[i,1] <- kombi[pom[i],1] 
+  wynik[i,2] <- p[i] 
+  wynik[i,3] <- "not significant" 
+}
+
+colnames(wynik) <- c("pairwise comparisons", "p", "difference")
+```
+
+```{r, echo = F}
+#| label: tbl-4
+#| tbl-cap: "Machines not statistically significantly different"
+#| message: false
+#| warning: false
+
+kable(wynik, row.names = FALSE, align = "lll") %>%
+  kable_styling(latex_options = "striped")
+```
+
+# Summary
+
+The ANOVA analysis showed that the effect of the type of coolant on the result in terms of part diameter is not statistically significant, while there are statistically significant differences between parts produced on different machines.
+
+The results presented in the last table indicate that the machines can be divided into two interrelated groups:
+
+-   Machine 1 - Machine 3 - Machine 4
+
+-   Machine 2 - Machine 3 - Machine 5
+
+The common element of both groups is Machine 3. Its products are the least different from the others. However, the differences that exist between the groups must be identified and eliminated.

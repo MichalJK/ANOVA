@@ -1,0 +1,5 @@
+---
+title: "Info"
+---
+
+Jest to raport Quarto w postaci dokumentu HTML na temat zastosowania analizy wariancji w analizie danych.

@@ -1,8 +1,17 @@
 {
   "index.qmd": {
-    "index.html": "df9c330c"
+    "index.html": "d7e27141"
   },
   "about.qmd": {
-    "about.html": "79ef3375"
+    "about.html": "62153b34"
+  },
+  "index_pl.qmd": {
+    "index_pl.html": "10547b57"
+  },
+  "info.qmd": {
+    "info.html": "adccc56d"
+  },
+  "index_en.qmd": {
+    "index_en.html": "558374e8"
   }
 }

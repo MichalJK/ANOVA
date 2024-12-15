@@ -11,7 +11,6 @@ format:
     tbl-pos: 'H'
 css: styles.css
 editor: visual
-lang: pl
 ---
 
 # Problem do rozwiązania
@@ -48,8 +47,10 @@ daneB <- read.table("ChłodziwoB.txt", header=T)
 #| tbl-cap: "Pomiary średnicy $d$ dla chłodziwa A"
 #| message: false
 #| warning: false
-require(reticulate)                             # hub do Pythona
 
+if (!require(reticulate)) {install.packages('reticulate', 
+                        repos="http://cran.us.r-project.org"); 
+                        require(reticulate)}
 if (!require(magnittr)) {install.packages('magnittr', 
                         repos="http://cran.us.r-project.org"); 
                         require(magnittr)}
@@ -148,7 +149,9 @@ Porównanie parami przeprowadzono metodą Tukeya HSD w Pythonie wykorzystując o
 
 ```{python}
 #| label: Analiza_post-hoc
+ 
 
+# python -m pip install statsmodels
 import pandas as pd
 import numpy as np
 import statsmodels
@@ -195,6 +198,8 @@ Wynik porównania dla czynnika Chłodziwo oznacza, że nie ma ono istotnego stat
 ```{r}
 #| message: false
 #| warning: false
+
+require(reticulate)                             # hub do Pythona
 
 # liczba możliwych kombinacji 2 różnych liczb spośród 5
 n <- factorial(5)/factorial(2)/factorial(3)     # factorial() - silnia

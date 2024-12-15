@@ -1,0 +1,31 @@
+{
+    "id": "DC376F82",
+    "path": "~/Amazon Aws/ANOVA/index.qmd",
+    "project_path": "index.qmd",
+    "type": "quarto_markdown",
+    "hash": "2763078727",
+    "contents": "",
+    "dirty": false,
+    "created": 1730230353290.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "rmdVisualMode": "false",
+        "rmdVisualWrapConfigured": "true",
+        "source_window_id": "",
+        "Source": "Source",
+        "docOutlineVisible": "1",
+        "rmdVisualCollapsedChunks": "",
+        "rmdVisualModeLocation": "2:0",
+        "cursorPosition": "284,0",
+        "scrollLine": "259"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1730230369,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1730230369505,
+    "read_only": false,
+    "read_only_alternatives": []
+}

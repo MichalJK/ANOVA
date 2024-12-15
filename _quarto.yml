@@ -1,20 +1,9 @@
-project:
+roject:
   type: website
-  output-dir: docs
 
-website:
-  title: "ANOVA"
-  navbar:
-    left:
-      - href: index.qmd
-        text: Home
-      - about.qmd
+profile:
+  default: polish
+  group: 
+    - [polish, english]
 
-format:
-  html:
-    theme: cosmo
-    css: styles.css
-    toc: true
-
-editor: visual
 
