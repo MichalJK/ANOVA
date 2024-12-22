@@ -113,7 +113,7 @@ colnames(srednice)= c("d","Machine", "Coolant")
 head(srednice)
 ```
 
-## Wykres pudełkowy
+## Box plot
 
 ```{r}
 #| label: fig-2

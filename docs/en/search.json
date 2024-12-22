@@ -1,5 +1,61 @@
 [
   {
+    "objectID": "info.html",
+    "href": "info.html",
+    "title": "Info",
+    "section": "",
+    "text": "Jest to raport Quarto w postaci dokumentu HTML na temat zastosowania analizy wariancji w analizie danych."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Two-way Anova - an example",
+    "section": "",
+    "text": "5 measurements have been made of the diameter of a small element produced on 5 different machines using two different coolants A and B were made. It should be checked whether the type of coolant has any effect on the diameter of the elements produced.\nThe distinguishing factors are the machine number and the type of coolant. The problem was analyzed using a two-way analysis of variance, which examines the effect of two different qualitative independent variables (one - machine, the other - coolant) on a continuous dependent variable (the diameter of the element). The example and the numerical data have been taken from the guide: https://www.itl.nist.gov/div898/handbook/ppc/section2/ppc232.htm.\nThe numerical data are presented in the table in the figure below.\n\n\n\nMeasurements of the diameter \\(d\\) of the part as a function of the machine and the coolant.\n\n\nThe null hypotheses to be tested using the Anova method:\n\n$H0_1$: Factor 1 (coolant) has no effect on the dependent variable.\n$𝐻0_2$: Factor 2 (Machine) has no effect on the dependent variable.\n$𝐻0_{1-2}$: The interaction of factors 1 and 2 has no effect on the dependent variable.\n\nAnova analysis and preparatory steps were performed in R (RStudio). Post-hoc analysis of pairwise comparisons was performed in Python."
+  },
+  {
+    "objectID": "index.html#data-preparation-for-variance-analysis",
+    "href": "index.html#data-preparation-for-variance-analysis",
+    "title": "Two-way Anova - an example",
+    "section": "Data preparation for variance analysis",
+    "text": "Data preparation for variance analysis\nThe data is recorded in the form of a ‘data frame’ where the first column is the diameter, the second column is the machine factor and the third column is the coolant type.\n\nn &lt;- dim(daneA)[1]       # number of measurements\nm &lt;- dim(daneA)[2]       # number of machines\nk &lt;- 2                   # number of levels of factor 1 (coolant)\n\nnag &lt;- colnames(daneA)   \nsrednice &lt;- data.frame(data = NA, nrow = 2*n*m,ncol =3)   \nfor(j in seq(1,m,1)){\n    for (i in seq(1,n,1)){\n      srednice[i+(j-1)*n,1] &lt;- daneA[i,j]\n      srednice[i+(j-1)*n,2] &lt;- nag[j]\n      srednice[i+(j-1)*n,3] &lt;- \"A\"\n    }\n}\n\nfor(j in seq(1,m,1)){\n    for (i in seq(1,n,1)){\n      srednice[n*m+i+(j-1)*n,1] &lt;- daneB[i,j]\n      srednice[n*m+i+(j-1)*n,2] &lt;- nag[j]\n      srednice[n*m+i+(j-1)*n,3] &lt;- \"B\"\n    }\n}\n\n# columns as factors\nsrednice[,2] &lt;- as.factor(srednice[,2])\nsrednice[,3] &lt;- as.factor(srednice[,3])\n\n# names of the columns\ncolnames(srednice)= c(\"d\",\"Machine\", \"Coolant\")\nhead(srednice)\n\n      d  Machine Coolant\n1 0.125 Machine1       A\n2 0.127 Machine1       A\n3 0.125 Machine1       A\n4 0.126 Machine1       A\n5 0.128 Machine1       A\n6 0.118 Machine2       A"
+  },
+  {
+    "objectID": "index.html#box-plot",
+    "href": "index.html#box-plot",
+    "title": "Two-way Anova - an example",
+    "section": "Box plot",
+    "text": "Box plot\n\nrequire(ggplot2)\nggplot(srednice, aes(x = Machine, y = d,  fill = Coolant) ) +\ngeom_boxplot()\n\n\n\n\n\n\n\nFigure 1: Box plot of \\(d\\) dependence on machine number and coolant"
+  },
+  {
+    "objectID": "index.html#results",
+    "href": "index.html#results",
+    "title": "Two-way Anova - an example",
+    "section": "Results",
+    "text": "Results\nAnova showed that the factor that influenced the result (diameter $d$) in a statistically significant way was the Machine. This is shown by the probability value of p &lt; 0.05 for the Machine factor only. The type of coolant has no influence (p &gt;0.05), as do the interactions.This means that at least one of the machines produces parts that differ from the others in a statistically significant way.\nTo see which machines produce parts that are significantly different from the others, a pairwise comparison analysis should be performed using the Tukey HSD method. The analysis was performed using Python.\n\nimport pandas as pd\nimport numpy as np\nimport statsmodels\nfrom scipy.stats import f_oneway\nfrom statsmodels.stats.multicomp import pairwise_tukeyhsd\n\n# Investigating the impact of the Machine factor\n# r.srednice - a Python-level reference to an R object\ntuk1 = pairwise_tukeyhsd(endog=r.srednice['d'],\n                          groups=r.srednice['Machine'],\n                          alpha=0.05)\nprint(tuk1)\n\n  Multiple Comparison of Means - Tukey HSD, FWER=0.05   \n========================================================\n group1   group2  meandiff p-adj   lower   upper  reject\n--------------------------------------------------------\nMachine1 Machine2  -0.0057 0.0005 -0.0093 -0.0021   True\nMachine1 Machine3  -0.0024 0.3398  -0.006  0.0012  False\nMachine1 Machine4   0.0005 0.9948 -0.0031  0.0041  False\nMachine1 Machine5  -0.0047 0.0052 -0.0083 -0.0011   True\nMachine2 Machine3   0.0033 0.0889 -0.0003  0.0069  False\nMachine2 Machine4   0.0062 0.0001  0.0026  0.0098   True\nMachine2 Machine5    0.001 0.9335 -0.0026  0.0046  False\nMachine3 Machine4   0.0029  0.171 -0.0007  0.0065  False\nMachine3 Machine5  -0.0023 0.3824 -0.0059  0.0013  False\nMachine4 Machine5  -0.0052 0.0016 -0.0088 -0.0016   True\n--------------------------------------------------------\n\n# Investigating the impact of the Coolant factor\ntuk2 = pairwise_tukeyhsd(endog=r.srednice['d'],\n                          groups=r.srednice['Coolant'],\n                          alpha=0.05)\nprint(tuk2)\n\nMultiple Comparison of Means - Tukey HSD, FWER=0.05\n==================================================\ngroup1 group2 meandiff p-adj  lower  upper  reject\n--------------------------------------------------\n     A      B  -0.0006 0.597 -0.0027 0.0016  False\n--------------------------------------------------"
+  },
+  {
+    "objectID": "index.html#machines-that-differ-in-a-statistically-significant-way",
+    "href": "index.html#machines-that-differ-in-a-statistically-significant-way",
+    "title": "Two-way Anova - an example",
+    "section": "Machines that differ in a statistically significant way",
+    "text": "Machines that differ in a statistically significant way\n\nrequire(reticulate)                             # hub to Python\n\n# number of possible combinations of 2 different numbers out of 5\nn &lt;- factorial(5)/factorial(2)/factorial(3)     \nkombi &lt;- kombinacja(srednice$Machine)           # possible combinations of Machines\n\n# Search for results of pairwise comparisons with a probability of p &lt; 0.05\nwynik &lt;- data.frame(NA) \npom &lt;- rep(0,n)\np &lt;- rep(0,n)\nj &lt;- 0\nfor (i in 1:n){    \n  if ( py$tuk1$pvalues[i] &lt; 0.05 ) {    # R-level reference to a Python object\n       j &lt;- j+1\n       pom[j] &lt;- i\n       p[j] &lt;- py$tuk1$pvalues[i]     \n  }\n}\n\n# search results\nfor (i in 1:j){\n  wynik[i,1] &lt;- kombi[pom[i],1] \n  wynik[i,2] &lt;- p[i] \n  wynik[i,3] &lt;- \"significant\"  \n}\n\ncolnames(wynik) &lt;- c(\"pairwise comparisons\", \"p\", \"difference\")\n\n\n\n\n\nTable 3: Machines that differ in a statistically significant way\n\n\n\n\n\n\n\npairwise comparisons\np\ndifference\n\n\n\n\nMachine1-Machine2\n0.0004717\nsignificant\n\n\nMachine1-Machine5\n0.0051667\nsignificant\n\n\nMachine2-Machine4\n0.0001330\nsignificant\n\n\nMachine4-Machine5\n0.0016046\nsignificant"
+  },
+  {
+    "objectID": "index.html#machines-not-statistically-significantly-different",
+    "href": "index.html#machines-not-statistically-significantly-different",
+    "title": "Two-way Anova - an example",
+    "section": "Machines not statistically significantly different",
+    "text": "Machines not statistically significantly different\n\n# Search for results of pairwise comparisons with a probability of p &gt; 0.05\nwynik &lt;- data.frame(NA) \npom &lt;- rep(0,n)\np &lt;- rep(0,n)\nj &lt;- 0\nfor (i in 1:n){    \n  if ( py$tuk1$pvalues[i] &gt; 0.05 ) {    # R-level reference to a Python object\n       j &lt;- j+1\n       pom[j] &lt;- i\n       p[j] &lt;- py$tuk1$pvalues[i]     \n  }\n}\n\n# search results\nfor (i in 1:j){\n  wynik[i,1] &lt;- kombi[pom[i],1] \n  wynik[i,2] &lt;- p[i] \n  wynik[i,3] &lt;- \"not significant\" \n}\n\ncolnames(wynik) &lt;- c(\"pairwise comparisons\", \"p\", \"difference\")\n\n\n\n\n\nTable 4: Machines not statistically significantly different\n\n\n\n\n\n\n\npairwise comparisons\np\ndifference\n\n\n\n\nMachine1-Machine3\n0.3398099\nnot significant\n\n\nMachine1-Machine4\n0.9947892\nnot significant\n\n\nMachine2-Machine3\n0.0889036\nnot significant\n\n\nMachine2-Machine5\n0.9334903\nnot significant\n\n\nMachine3-Machine4\n0.1709501\nnot significant\n\n\nMachine3-Machine5\n0.3824476\nnot significant"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "This is a Quarto report in HTML format on the use of variance analysis in data analysis."
+  },
+  {
     "objectID": "index_pl.html",
     "href": "index_pl.html",
     "title": "Dwuczynnikowa Anova - przykład",
@@ -40,61 +96,5 @@
     "title": "Dwuczynnikowa Anova - przykład",
     "section": "Maszyny nie różniące się w sposób statystycznie istotny",
     "text": "Maszyny nie różniące się w sposób statystycznie istotny\n\n# wyszukiwanie wyników porównania parami z prawdopodobieństwem p &gt; 0.05\nwynik &lt;- data.frame(NA) \npom &lt;- rep(0,n)\np &lt;- rep(0,n)\nj &lt;- 0\nfor (i in 1:n){    \n  if ( py$tuk1$pvalues[i] &gt; 0.05 ) {    # odwołanie z poziomu R do obiektu Pythona\n       j &lt;- j+1\n       pom[j] &lt;- i\n       p[j] &lt;- py$tuk1$pvalues[i]     \n  }\n}\n\n# zapis wyników wyszukiwania\nfor (i in 1:j){\n  wynik[i,1] &lt;- kombi[pom[i],1] \n  wynik[i,2] &lt;- p[i] \n  wynik[i,3] &lt;- \"nieistotna\"\n}\n\ncolnames(wynik) &lt;- c(\"Porównanie parami\", \"p\", \"różnica\")\n\n\n\n\n\nTable 4: Maszyny nie różniące się w sposób statystycznie istotny\n\n\n\n\n\n\n\nPorównanie parami\np\nróżnica\n\n\n\n\nMaszyna1-Maszyna3\n0.3398099\nnieistotna\n\n\nMaszyna1-Maszyna4\n0.9947892\nnieistotna\n\n\nMaszyna2-Maszyna3\n0.0889036\nnieistotna\n\n\nMaszyna2-Maszyna5\n0.9334903\nnieistotna\n\n\nMaszyna3-Maszyna4\n0.1709501\nnieistotna\n\n\nMaszyna3-Maszyna5\n0.3824476\nnieistotna"
-  },
-  {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
-    "section": "",
-    "text": "This is a Quarto report in HTML format on the use of variance analysis in data analysis."
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Two-way Anova - an example",
-    "section": "",
-    "text": "5 measurements have been made of the diameter of a small element produced on 5 different machines using two different coolants A and B were made. It should be checked whether the type of coolant has any effect on the diameter of the elements produced.\nThe distinguishing factors are the machine number and the type of coolant. The problem was analyzed using a two-way analysis of variance, which examines the effect of two different qualitative independent variables (one - machine, the other - coolant) on a continuous dependent variable (the diameter of the element). The example and the numerical data have been taken from the guide: https://www.itl.nist.gov/div898/handbook/ppc/section2/ppc232.htm.\nThe numerical data are presented in the table in the figure below.\n\n\n\nMeasurements of the diameter \\(d\\) of the part as a function of the machine and the coolant.\n\n\nThe null hypotheses to be tested using the Anova method:\n\n$H0_1$: Factor 1 (coolant) has no effect on the dependent variable.\n$𝐻0_2$: Factor 2 (Machine) has no effect on the dependent variable.\n$𝐻0_{1-2}$: The interaction of factors 1 and 2 has no effect on the dependent variable.\n\nAnova analysis and preparatory steps were performed in R (RStudio). Post-hoc analysis of pairwise comparisons was performed in Python."
-  },
-  {
-    "objectID": "index.html#data-preparation-for-variance-analysis",
-    "href": "index.html#data-preparation-for-variance-analysis",
-    "title": "Two-way Anova - an example",
-    "section": "Data preparation for variance analysis",
-    "text": "Data preparation for variance analysis\nThe data is recorded in the form of a ‘data frame’ where the first column is the diameter, the second column is the machine factor and the third column is the coolant type.\n\nn &lt;- dim(daneA)[1]       # number of measurements\nm &lt;- dim(daneA)[2]       # number of machines\nk &lt;- 2                   # number of levels of factor 1 (coolant)\n\nnag &lt;- colnames(daneA)   \nsrednice &lt;- data.frame(data = NA, nrow = 2*n*m,ncol =3)   \nfor(j in seq(1,m,1)){\n    for (i in seq(1,n,1)){\n      srednice[i+(j-1)*n,1] &lt;- daneA[i,j]\n      srednice[i+(j-1)*n,2] &lt;- nag[j]\n      srednice[i+(j-1)*n,3] &lt;- \"A\"\n    }\n}\n\nfor(j in seq(1,m,1)){\n    for (i in seq(1,n,1)){\n      srednice[n*m+i+(j-1)*n,1] &lt;- daneB[i,j]\n      srednice[n*m+i+(j-1)*n,2] &lt;- nag[j]\n      srednice[n*m+i+(j-1)*n,3] &lt;- \"B\"\n    }\n}\n\n# columns as factors\nsrednice[,2] &lt;- as.factor(srednice[,2])\nsrednice[,3] &lt;- as.factor(srednice[,3])\n\n# names of the columns\ncolnames(srednice)= c(\"d\",\"Machine\", \"Coolant\")\nhead(srednice)\n\n      d  Machine Coolant\n1 0.125 Machine1       A\n2 0.127 Machine1       A\n3 0.125 Machine1       A\n4 0.126 Machine1       A\n5 0.128 Machine1       A\n6 0.118 Machine2       A"
-  },
-  {
-    "objectID": "index.html#wykres-pudełkowy",
-    "href": "index.html#wykres-pudełkowy",
-    "title": "Two-way Anova - an example",
-    "section": "Wykres pudełkowy",
-    "text": "Wykres pudełkowy\n\nrequire(ggplot2)\nggplot(srednice, aes(x = Machine, y = d,  fill = Coolant) ) +\ngeom_boxplot()\n\n\n\n\n\n\n\nFigure 1: Box plot of \\(d\\) dependence on machine number and coolant"
-  },
-  {
-    "objectID": "index.html#results",
-    "href": "index.html#results",
-    "title": "Two-way Anova - an example",
-    "section": "Results",
-    "text": "Results\nAnova showed that the factor that influenced the result (diameter $d$) in a statistically significant way was the Machine. This is shown by the probability value of p &lt; 0.05 for the Machine factor only. The type of coolant has no influence (p &gt;0.05), as do the interactions.This means that at least one of the machines produces parts that differ from the others in a statistically significant way.\nTo see which machines produce parts that are significantly different from the others, a pairwise comparison analysis should be performed using the Tukey HSD method. The analysis was performed using Python.\n\nimport pandas as pd\nimport numpy as np\nimport statsmodels\nfrom scipy.stats import f_oneway\nfrom statsmodels.stats.multicomp import pairwise_tukeyhsd\n\n# Investigating the impact of the Machine factor\n# r.srednice - a Python-level reference to an R object\ntuk1 = pairwise_tukeyhsd(endog=r.srednice['d'],\n                          groups=r.srednice['Machine'],\n                          alpha=0.05)\nprint(tuk1)\n\n  Multiple Comparison of Means - Tukey HSD, FWER=0.05   \n========================================================\n group1   group2  meandiff p-adj   lower   upper  reject\n--------------------------------------------------------\nMachine1 Machine2  -0.0057 0.0005 -0.0093 -0.0021   True\nMachine1 Machine3  -0.0024 0.3398  -0.006  0.0012  False\nMachine1 Machine4   0.0005 0.9948 -0.0031  0.0041  False\nMachine1 Machine5  -0.0047 0.0052 -0.0083 -0.0011   True\nMachine2 Machine3   0.0033 0.0889 -0.0003  0.0069  False\nMachine2 Machine4   0.0062 0.0001  0.0026  0.0098   True\nMachine2 Machine5    0.001 0.9335 -0.0026  0.0046  False\nMachine3 Machine4   0.0029  0.171 -0.0007  0.0065  False\nMachine3 Machine5  -0.0023 0.3824 -0.0059  0.0013  False\nMachine4 Machine5  -0.0052 0.0016 -0.0088 -0.0016   True\n--------------------------------------------------------\n\n# Investigating the impact of the Coolant factor\ntuk2 = pairwise_tukeyhsd(endog=r.srednice['d'],\n                          groups=r.srednice['Coolant'],\n                          alpha=0.05)\nprint(tuk2)\n\nMultiple Comparison of Means - Tukey HSD, FWER=0.05\n==================================================\ngroup1 group2 meandiff p-adj  lower  upper  reject\n--------------------------------------------------\n     A      B  -0.0006 0.597 -0.0027 0.0016  False\n--------------------------------------------------"
-  },
-  {
-    "objectID": "index.html#machines-that-differ-in-a-statistically-significant-way",
-    "href": "index.html#machines-that-differ-in-a-statistically-significant-way",
-    "title": "Two-way Anova - an example",
-    "section": "Machines that differ in a statistically significant way",
-    "text": "Machines that differ in a statistically significant way\n\nrequire(reticulate)                             # hub to Python\n\n# number of possible combinations of 2 different numbers out of 5\nn &lt;- factorial(5)/factorial(2)/factorial(3)     \nkombi &lt;- kombinacja(srednice$Machine)           # possible combinations of Machines\n\n# Search for results of pairwise comparisons with a probability of p &lt; 0.05\nwynik &lt;- data.frame(NA) \npom &lt;- rep(0,n)\np &lt;- rep(0,n)\nj &lt;- 0\nfor (i in 1:n){    \n  if ( py$tuk1$pvalues[i] &lt; 0.05 ) {    # R-level reference to a Python object\n       j &lt;- j+1\n       pom[j] &lt;- i\n       p[j] &lt;- py$tuk1$pvalues[i]     \n  }\n}\n\n# search results\nfor (i in 1:j){\n  wynik[i,1] &lt;- kombi[pom[i],1] \n  wynik[i,2] &lt;- p[i] \n  wynik[i,3] &lt;- \"significant\"  \n}\n\ncolnames(wynik) &lt;- c(\"pairwise comparisons\", \"p\", \"difference\")\n\n\n\n\n\nTable 3: Machines that differ in a statistically significant way\n\n\n\n\n\n\n\npairwise comparisons\np\ndifference\n\n\n\n\nMachine1-Machine2\n0.0004717\nsignificant\n\n\nMachine1-Machine5\n0.0051667\nsignificant\n\n\nMachine2-Machine4\n0.0001330\nsignificant\n\n\nMachine4-Machine5\n0.0016046\nsignificant"
-  },
-  {
-    "objectID": "index.html#machines-not-statistically-significantly-different",
-    "href": "index.html#machines-not-statistically-significantly-different",
-    "title": "Two-way Anova - an example",
-    "section": "Machines not statistically significantly different",
-    "text": "Machines not statistically significantly different\n\n# Search for results of pairwise comparisons with a probability of p &gt; 0.05\nwynik &lt;- data.frame(NA) \npom &lt;- rep(0,n)\np &lt;- rep(0,n)\nj &lt;- 0\nfor (i in 1:n){    \n  if ( py$tuk1$pvalues[i] &gt; 0.05 ) {    # R-level reference to a Python object\n       j &lt;- j+1\n       pom[j] &lt;- i\n       p[j] &lt;- py$tuk1$pvalues[i]     \n  }\n}\n\n# search results\nfor (i in 1:j){\n  wynik[i,1] &lt;- kombi[pom[i],1] \n  wynik[i,2] &lt;- p[i] \n  wynik[i,3] &lt;- \"not significant\" \n}\n\ncolnames(wynik) &lt;- c(\"pairwise comparisons\", \"p\", \"difference\")\n\n\n\n\n\nTable 4: Machines not statistically significantly different\n\n\n\n\n\n\n\npairwise comparisons\np\ndifference\n\n\n\n\nMachine1-Machine3\n0.3398099\nnot significant\n\n\nMachine1-Machine4\n0.9947892\nnot significant\n\n\nMachine2-Machine3\n0.0889036\nnot significant\n\n\nMachine2-Machine5\n0.9334903\nnot significant\n\n\nMachine3-Machine4\n0.1709501\nnot significant\n\n\nMachine3-Machine5\n0.3824476\nnot significant"
-  },
-  {
-    "objectID": "info.html",
-    "href": "info.html",
-    "title": "Info",
-    "section": "",
-    "text": "Jest to raport Quarto w postaci dokumentu HTML na temat zastosowania analizy wariancji w analizie danych."
   }
 ]

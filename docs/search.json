@@ -42,18 +42,18 @@
     "text": "Maszyny nie różniące się w sposób statystycznie istotny\n\n# wyszukiwanie wyników porównania parami z prawdopodobieństwem p &gt; 0.05\nwynik &lt;- data.frame(NA) \npom &lt;- rep(0,n)\np &lt;- rep(0,n)\nj &lt;- 0\nfor (i in 1:n){    \n  if ( py$tuk1$pvalues[i] &gt; 0.05 ) {    # odwołanie z poziomu R do obiektu Pythona\n       j &lt;- j+1\n       pom[j] &lt;- i\n       p[j] &lt;- py$tuk1$pvalues[i]     \n  }\n}\n\n# zapis wyników wyszukiwania\nfor (i in 1:j){\n  wynik[i,1] &lt;- kombi[pom[i],1] \n  wynik[i,2] &lt;- p[i] \n  wynik[i,3] &lt;- \"nieistotna\"\n}\n\ncolnames(wynik) &lt;- c(\"Porównanie parami\", \"p\", \"różnica\")\n\n\n\n\n\nTabela 4: Maszyny nie różniące się w sposób statystycznie istotny\n\n\n\n\n\n\n\nPorównanie parami\np\nróżnica\n\n\n\n\nMaszyna1-Maszyna3\n0.3398099\nnieistotna\n\n\nMaszyna1-Maszyna4\n0.9947892\nnieistotna\n\n\nMaszyna2-Maszyna3\n0.0889036\nnieistotna\n\n\nMaszyna2-Maszyna5\n0.9334903\nnieistotna\n\n\nMaszyna3-Maszyna4\n0.1709501\nnieistotna\n\n\nMaszyna3-Maszyna5\n0.3824476\nnieistotna"
   },
   {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
-    "section": "",
-    "text": "This is a Quarto report in HTML format on the use of variance analysis in data analysis."
-  },
-  {
     "objectID": "info.html",
     "href": "info.html",
     "title": "Info",
     "section": "",
     "text": "Jest to raport Quarto w postaci dokumentu HTML na temat zastosowania analizy wariancji w analizie danych."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "This is a Quarto report in HTML format on the use of variance analysis in data analysis."
   },
   {
     "objectID": "index_en.html",
@@ -70,11 +70,11 @@
     "text": "Data preparation for variance analysis\nThe data is recorded in the form of a ‘data frame’ where the first column is the diameter, the second column is the machine factor and the third column is the coolant type.\n\nn &lt;- dim(daneA)[1]       # number of measurements\nm &lt;- dim(daneA)[2]       # number of machines\nk &lt;- 2                   # number of levels of factor 1 (coolant)\n\nnag &lt;- colnames(daneA)   \nsrednice &lt;- data.frame(data = NA, nrow = 2*n*m,ncol =3)   \nfor(j in seq(1,m,1)){\n    for (i in seq(1,n,1)){\n      srednice[i+(j-1)*n,1] &lt;- daneA[i,j]\n      srednice[i+(j-1)*n,2] &lt;- nag[j]\n      srednice[i+(j-1)*n,3] &lt;- \"A\"\n    }\n}\n\nfor(j in seq(1,m,1)){\n    for (i in seq(1,n,1)){\n      srednice[n*m+i+(j-1)*n,1] &lt;- daneB[i,j]\n      srednice[n*m+i+(j-1)*n,2] &lt;- nag[j]\n      srednice[n*m+i+(j-1)*n,3] &lt;- \"B\"\n    }\n}\n\n# columns as factors\nsrednice[,2] &lt;- as.factor(srednice[,2])\nsrednice[,3] &lt;- as.factor(srednice[,3])\n\n# names of the columns\ncolnames(srednice)= c(\"d\",\"Machine\", \"Coolant\")\nhead(srednice)\n\n      d  Machine Coolant\n1 0.125 Machine1       A\n2 0.127 Machine1       A\n3 0.125 Machine1       A\n4 0.126 Machine1       A\n5 0.128 Machine1       A\n6 0.118 Machine2       A"
   },
   {
-    "objectID": "index_en.html#wykres-pudełkowy",
-    "href": "index_en.html#wykres-pudełkowy",
+    "objectID": "index_en.html#box-plot",
+    "href": "index_en.html#box-plot",
     "title": "Two-way Anova - an example",
-    "section": "Wykres pudełkowy",
-    "text": "Wykres pudełkowy\n\nrequire(ggplot2)\nggplot(srednice, aes(x = Machine, y = d,  fill = Coolant) ) +\ngeom_boxplot()\n\n\n\n\n\n\n\nRysunek 1: Box plot of \\(d\\) dependence on machine number and coolant"
+    "section": "Box plot",
+    "text": "Box plot\n\nrequire(ggplot2)\nggplot(srednice, aes(x = Machine, y = d,  fill = Coolant) ) +\ngeom_boxplot()\n\n\n\n\n\n\n\nRysunek 1: Box plot of \\(d\\) dependence on machine number and coolant"
   },
   {
     "objectID": "index_en.html#results",

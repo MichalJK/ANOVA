@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Michał Kołodziejczyk">
-<meta name="dcterms.date" content="2024-12-12">
+<meta name="dcterms.date" content="2024-12-22">
 
 <title>Anova - Two-way Anova - an example</title>
 <style>
@@ -216,7 +216,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">December 12, 2024</p>
+        <p class="date">December 22, 2024</p>
       </div>
     </div>
     
@@ -236,7 +236,7 @@ window.Quarto = {
   <li><a href="#data-loading-and-analysis" id="toc-data-loading-and-analysis" class="nav-link" data-scroll-target="#data-loading-and-analysis">Data Loading and Analysis</a>
   <ul class="collapse">
   <li><a href="#data-preparation-for-variance-analysis" id="toc-data-preparation-for-variance-analysis" class="nav-link" data-scroll-target="#data-preparation-for-variance-analysis">Data preparation for variance analysis</a></li>
-  <li><a href="#wykres-pudełkowy" id="toc-wykres-pudełkowy" class="nav-link" data-scroll-target="#wykres-pudełkowy">Wykres pudełkowy</a></li>
+  <li><a href="#box-plot" id="toc-box-plot" class="nav-link" data-scroll-target="#box-plot">Box plot</a></li>
   </ul></li>
   <li><a href="#anova-analysis" id="toc-anova-analysis" class="nav-link" data-scroll-target="#anova-analysis">Anova Analysis</a>
   <ul class="collapse">
@@ -469,8 +469,8 @@ Table&nbsp;2: Diameter measurements <span class="math inline">\(d\)</span> for c
 </div>
 </div>
 </section>
-<section id="wykres-pudełkowy" class="level2">
-<h2 class="anchored" data-anchor-id="wykres-pudełkowy">Wykres pudełkowy</h2>
+<section id="box-plot" class="level2">
+<h2 class="anchored" data-anchor-id="box-plot">Box plot</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(ggplot2)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(srednice, <span class="fu">aes</span>(<span class="at">x =</span> Machine, <span class="at">y =</span> d,  <span class="at">fill =</span> Coolant) ) <span class="sc">+</span></span>
